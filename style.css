@@ -1,0 +1,42 @@
+.action-btn {
+  background:#ffd84d;
+  border:none;
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:bold;
+  color:#5a4a00;
+  margin:3px;
+}
+.action-btn:hover {
+  background:#ffcc00;
+}
+
+.cart-item {
+  display: flex;              /* 讓文字和圖片並排 */
+  justify-content: space-between; /* 左右分開 */
+  align-items: center;        /* 垂直置中 */
+  margin: 5px 0;
+}
+
+.cart-item img {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  margin-left: 10px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card .btn-group {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.card .btn-minus { order: 1; }
+.card .btn-plus { order: 2; }
