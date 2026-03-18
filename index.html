@@ -18,6 +18,32 @@
         th{ background:#ffe680; }
         #topTotal{ font-size:1.4em; font-weight:bold; text-align:center; margin-bottom:20px; }
         .cart-item{ margin:5px 0; }
+        /* 結帳區塊和 GIF 並排且同高 */
+        .checkout-section {
+            display: flex;
+            align-items: stretch;
+            gap: 20px;
+        }
+        .checkout-left {
+            flex: 1;
+            background:#fff8dc;
+            padding:10px;
+            border:1px solid #f0d97a;
+            border-radius:8px;
+        }
+        .checkout-right {
+            flex: 0 0 200px;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:#fff8dc;
+            border:1px solid #f0d97a;
+            border-radius:8px;
+        }
+        .checkout-right img {
+            max-width:100%;
+            max-height:100%;
+        }
     </style>
 </head>
 <body>
@@ -30,9 +56,16 @@
 <div class="products" id="productList"></div>
 
 <h2>單筆待結帳數</h2>
-<ul id="cart"></ul>
-<p>本次小計：<span id="cartTotal">0</span></p>
-<button class="action-btn" onclick="checkout()">確認結算</button>
+<div class="checkout-section">
+    <div class="checkout-left">
+        <ul id="cart"></ul>
+        <p>本次小計：<span id="cartTotal">0</span></p>
+        <button class="action-btn" onclick="checkout()">確認結算</button>
+    </div>
+    <div class="checkout-right">
+        <img src="https://i0.wp.com/media1.giphy.com/media/lpODa2TxxS2Cj2M8Ht/giphy.gif?w=640&ssl=1" alt="GIF">
+    </div>
+</div>
 
 <h2>登記紀錄</h2>
 <table id="records">
@@ -42,14 +75,14 @@
 <button class="action-btn" onclick="clearData()">刪除今日所有數據</button>
 
 <script>
-let products = JSON.parse(localStorage.getItem("products")) || {
+let products = {
     "商品A": { stock: 20, price: 50 },
     "商品B": { stock: 20, price: 30 },
     "商品C": { stock: 20, price: 80 }
 };
 
-let sales = JSON.parse(localStorage.getItem("sales")) || [];
-let records = JSON.parse(localStorage.getItem("records")) || [];
+let sales = [];
+let records = [];
 let currentCart = [];
 
 function renderProducts() {
@@ -114,10 +147,6 @@ function checkout() {
     let detail = currentCart.map(item => `${item.product} x ${item.qty}`).join(", ");
     records.push({ time: now, detail: detail, subtotal: subtotal });
 
-    localStorage.setItem("products", JSON.stringify(products));
-    localStorage.setItem("sales", JSON.stringify(sales));
-    localStorage.setItem("records", JSON.stringify(records));
-
     currentCart = [];
     updateCartDisplay();
     renderProducts();
@@ -143,9 +172,6 @@ function renderTotal() {
 
 function clearData() {
     if (confirm("確定要刪除今日所有數據嗎？")) {
-        localStorage.removeItem("products");
-        localStorage.removeItem("sales");
-        localStorage.removeItem("records");
         products = {
             "商品A": { stock: 20, price: 50 },
             "商品B": { stock: 20, price: 30 },
