@@ -18,32 +18,10 @@
         th{ background:#ffe680; }
         #topTotal{ font-size:1.4em; font-weight:bold; text-align:center; margin-bottom:20px; }
         .cart-item{ margin:5px 0; }
-        /* 結帳區塊和 GIF 並排且同高 */
-        .checkout-section {
-            display: flex;
-            align-items: stretch;
-            gap: 20px;
-        }
-        .checkout-left {
-            flex: 1;
-            background:#fff8dc;
-            padding:10px;
-            border:1px solid #f0d97a;
-            border-radius:8px;
-        }
-        .checkout-right {
-            flex: 0 0 200px;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            background:#fff8dc;
-            border:1px solid #f0d97a;
-            border-radius:8px;
-        }
-        .checkout-right img {
-            max-width:100%;
-            max-height:100%;
-        }
+        .checkout-section { display:flex; align-items:stretch; gap:20px; }
+        .checkout-left { flex:1; background:#fff8dc; padding:10px; border:1px solid #f0d97a; border-radius:8px; }
+        .checkout-right { flex:0 0 200px; display:flex; justify-content:center; align-items:center; background:#fff8dc; border:1px solid #f0d97a; border-radius:8px; }
+        .checkout-right img { max-width:100%; max-height:100%; }
     </style>
 </head>
 <body>
@@ -63,7 +41,7 @@
         <button class="action-btn" onclick="checkout()">確認結算</button>
     </div>
     <div class="checkout-right">
-        <img src="https://preview.redd.it/seeking-the-original-creator-of-this-bread-gif-v0-fqoz0d9ypfpg1.gif?width=498&auto=webp&s=96853f4089a08b9dbe13ad79217cd1752dddfc35" alt="GIF">
+         <img src="https://preview.redd.it/seeking-the-original-creator-of-this-bread-gif-v0-fqoz0d9ypfpg1.gif?width=498&auto=webp&s=96853f4089a08b9dbe13ad79217cd1752dddfc35" alt="GIF">
     </div>
 </div>
 
@@ -75,14 +53,13 @@
 <button class="action-btn" onclick="clearData()">刪除今日所有數據</button>
 
 <script>
-let products = {
+let products = JSON.parse(localStorage.getItem("products")) || {
     "商品A": { stock: 20, price: 50 },
     "商品B": { stock: 20, price: 30 },
     "商品C": { stock: 20, price: 80 }
 };
-
-let sales = [];
-let records = [];
+let sales = JSON.parse(localStorage.getItem("sales")) || [];
+let records = JSON.parse(localStorage.getItem("records")) || [];
 let currentCart = [];
 
 function renderProducts() {
@@ -94,7 +71,6 @@ function renderProducts() {
                 <h3>${p}</h3>
                 <p>庫存：${products[p].stock}</p>
                 <p>單價：$${products[p].price}</p>
-                <!-- -1 在左邊，+1 在右邊 -->
                 <button class="action-btn" onclick="removeFromCart('${p}')">-1</button>
                 <button class="action-btn" onclick="addToCart('${p}')">+1</button>
             </div>
@@ -103,22 +79,15 @@ function renderProducts() {
 }
 
 function addToCart(productName) {
-    if (products[productName].stock <= 0) {
-        alert("庫存不足");
-        return;
-    }
+    if (products[productName].stock <= 0) { alert("庫存不足"); return; }
     currentCart.push({ product: productName, qty: 1, price: products[productName].price });
     updateCartDisplay();
 }
 
 function removeFromCart(productName) {
     let index = currentCart.findIndex(item => item.product === productName);
-    if (index !== -1) {
-        currentCart.splice(index, 1);
-        updateCartDisplay();
-    } else {
-        alert("購物車裡沒有此商品");
-    }
+    if (index !== -1) { currentCart.splice(index, 1); updateCartDisplay(); }
+    else { alert("購物車裡沒有此商品"); }
 }
 
 function updateCartDisplay() {
@@ -126,7 +95,6 @@ function updateCartDisplay() {
     let cartTotalSpan = document.getElementById("cartTotal");
     cartUl.innerHTML = "";
     let subtotal = 0;
-
     currentCart.forEach(item => {
         subtotal += item.qty * item.price;
         cartUl.innerHTML += `<li class="cart-item">${item.product} x ${item.qty} ($${item.price})</li>`;
@@ -136,16 +104,19 @@ function updateCartDisplay() {
 
 function checkout() {
     if (currentCart.length === 0) return;
-
     currentCart.forEach(item => {
         products[item.product].stock -= item.qty;
         sales.push(item);
     });
-
     let now = new Date().toLocaleString();
     let subtotal = currentCart.reduce((sum, item) => sum + item.qty * item.price, 0);
     let detail = currentCart.map(item => `${item.product} x ${item.qty}`).join(", ");
     records.push({ time: now, detail: detail, subtotal: subtotal });
+
+    // 寫回 localStorage
+    localStorage.setItem("products", JSON.stringify(products));
+    localStorage.setItem("sales", JSON.stringify(sales));
+    localStorage.setItem("records", JSON.stringify(records));
 
     currentCart = [];
     updateCartDisplay();
@@ -164,14 +135,15 @@ function renderRecords() {
 
 function renderTotal() {
     let dailyTotal = 0;
-    sales.forEach(s => {
-        dailyTotal += s.qty * s.price;
-    });
+    sales.forEach(s => { dailyTotal += s.qty * s.price; });
     document.getElementById("total").innerText = dailyTotal;
 }
 
 function clearData() {
     if (confirm("確定要刪除今日所有數據嗎？")) {
+        localStorage.removeItem("products");
+        localStorage.removeItem("sales");
+        localStorage.removeItem("records");
         products = {
             "商品A": { stock: 20, price: 50 },
             "商品B": { stock: 20, price: 30 },
@@ -195,4 +167,5 @@ renderTotal();
 
 </body>
 </html>
+
 
