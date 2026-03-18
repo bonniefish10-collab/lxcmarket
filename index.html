@@ -11,14 +11,18 @@
         .card{ background:white; border:1px solid #f0d97a; border-radius:12px; padding:15px; width:200px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
         .card h3{ margin:10px 0; color:#5a3e2b; }
         .card p{ margin:5px 0; color:#8b5e3c; font-weight:bold; }
-        .card button{ background:#ffd84d; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; font-weight:bold; color:#5a4a00; }
-        .card button:hover{ background:#ffcc00; }
+        .action-btn{ background:#ffd84d; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; font-weight:bold; color:#5a4a00; margin:3px; }
+        .action-btn:hover{ background:#ffcc00; }
         table{ border-collapse:collapse; width:100%; background:white; margin-top:10px; border-radius:12px; overflow:hidden; }
         td,th{ border:1px solid #f0d97a; padding:8px; text-align:center; }
         th{ background:#ffe680; }
+        #topTotal{ font-size:1.4em; font-weight:bold; text-align:center; margin-bottom:20px; }
+        .cart-item{ margin:5px 0; }
     </style>
 </head>
 <body>
+
+<div id="topTotal">今日營業額：<span id="total">0</span></div>
 
 <h1>市集庫存</h1>
 
@@ -28,20 +32,16 @@
 <h2>單筆待結帳數</h2>
 <ul id="cart"></ul>
 <p>本次小計：<span id="cartTotal">0</span></p>
-<button onclick="checkout()">確認結算</button>
-
-<h2>今日營業額</h2>
-<p id="total" style="font-size:1.2em; font-weight:bold;">0</p>
+<button class="action-btn" onclick="checkout()">確認結算</button>
 
 <h2>登記紀錄</h2>
 <table id="records">
-    <tr><th>時間</th><th>商品</th><th>數量</th><th>單價</th><th>小計</th></tr>
+    <tr><th>時間</th><th>品項明細</th><th>小計</th></tr>
 </table>
 
-<button onclick="clearData()">刪除今日所有數據</button>
+<button class="action-btn" onclick="clearData()">刪除今日所有數據</button>
 
 <script>
-// 初始化資料
 let products = JSON.parse(localStorage.getItem("products")) || {
     "商品A": { stock: 20, price: 50 },
     "商品B": { stock: 20, price: 30 },
@@ -61,7 +61,9 @@ function renderProducts() {
                 <h3>${p}</h3>
                 <p>庫存：${products[p].stock}</p>
                 <p>單價：$${products[p].price}</p>
-                <button onclick="addToCart('${p}')">+1</button>
+                <!-- -1 在左邊，+1 在右邊 -->
+                <button class="action-btn" onclick="removeFromCart('${p}')">-1</button>
+                <button class="action-btn" onclick="addToCart('${p}')">+1</button>
             </div>
         `;
     }
@@ -76,6 +78,16 @@ function addToCart(productName) {
     updateCartDisplay();
 }
 
+function removeFromCart(productName) {
+    let index = currentCart.findIndex(item => item.product === productName);
+    if (index !== -1) {
+        currentCart.splice(index, 1);
+        updateCartDisplay();
+    } else {
+        alert("購物車裡沒有此商品");
+    }
+}
+
 function updateCartDisplay() {
     let cartUl = document.getElementById("cart");
     let cartTotalSpan = document.getElementById("cartTotal");
@@ -83,8 +95,8 @@ function updateCartDisplay() {
     let subtotal = 0;
 
     currentCart.forEach(item => {
-        cartUl.innerHTML += `<li>${item.product} x ${item.qty} ($${item.price})</li>`;
         subtotal += item.qty * item.price;
+        cartUl.innerHTML += `<li class="cart-item">${item.product} x ${item.qty} ($${item.price})</li>`;
     });
     cartTotalSpan.innerText = subtotal;
 }
@@ -95,13 +107,13 @@ function checkout() {
     currentCart.forEach(item => {
         products[item.product].stock -= item.qty;
         sales.push(item);
-
-        let now = new Date().toLocaleString();
-        let subtotal = item.qty * item.price;
-        records.push({ time: now, product: item.product, qty: item.qty, price: item.price, subtotal: subtotal });
     });
 
-    // 存入 localStorage
+    let now = new Date().toLocaleString();
+    let subtotal = currentCart.reduce((sum, item) => sum + item.qty * item.price, 0);
+    let detail = currentCart.map(item => `${item.product} x ${item.qty}`).join(", ");
+    records.push({ time: now, detail: detail, subtotal: subtotal });
+
     localStorage.setItem("products", JSON.stringify(products));
     localStorage.setItem("sales", JSON.stringify(sales));
     localStorage.setItem("records", JSON.stringify(records));
@@ -115,9 +127,9 @@ function checkout() {
 
 function renderRecords() {
     let recordsTable = document.getElementById("records");
-    recordsTable.innerHTML = "<tr><th>時間</th><th>商品</th><th>數量</th><th>單價</th><th>小計</th></tr>";
+    recordsTable.innerHTML = "<tr><th>時間</th><th>品項明細</th><th>小計</th></tr>";
     records.forEach(r => {
-        recordsTable.innerHTML += `<tr><td>${r.time}</td><td>${r.product}</td><td>${r.qty}</td><td>$${r.price}</td><td>$${r.subtotal}</td></tr>`;
+        recordsTable.innerHTML += `<tr><td>${r.time}</td><td>${r.detail}</td><td>$${r.subtotal}</td></tr>`;
     });
 }
 
@@ -157,3 +169,4 @@ renderTotal();
 
 </body>
 </html>
+
