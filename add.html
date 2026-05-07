@@ -48,24 +48,16 @@ function saveProduct() {
     if (isNaN(price) || price < 0) { alert("請輸入有效定價"); return; }
     if (isNaN(stock) || stock < 0) { alert("請輸入有效庫存"); return; }
 
-    // 讀取現有商品
     let products = JSON.parse(localStorage.getItem("products")) || {};
-
-    // 檢查是否重複
     if (products[name]) { alert("商品已存在"); return; }
 
-    // 新增商品
     products[name] = { stock: stock, price: price };
-
-    // 寫回 localStorage
     localStorage.setItem("products", JSON.stringify(products));
 
-    alert("商品已新增！");
-    // 返回主頁
+    // 新增成功後直接跳回首頁
     window.location.href = "index.html";
 }
 </script>
 
 </body>
 </html>
-
