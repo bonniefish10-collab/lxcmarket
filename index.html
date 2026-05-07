@@ -8,7 +8,7 @@
         h1{ text-align:center; color:#c79a00; }
         h2{ color:#a67c00; margin-top:30px; }
         .products{ display:flex; flex-wrap:wrap; gap:20px; justify-content:center; }
-        .card{ background:white; border:1px solid #f0d97a; border-radius:12px; padding:15px; width:220px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
+        .card{ background:white; border:1px solid #f0d97a; border-radius:12px; padding:15px; width:200px; text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
         .card h3{ margin:10px 0; color:#5a3e2b; }
         .card p{ margin:5px 0; color:#8b5e3c; font-weight:bold; }
         .action-btn{ background:#ffd84d; border:none; padding:6px 10px; border-radius:6px; cursor:pointer; font-weight:bold; color:#5a4a00; margin:3px; }
@@ -33,12 +33,9 @@
 <h2>商品列表</h2>
 <div class="products" id="productList"></div>
 
-<h2>新增商品</h2>
-<div>
-    <input type="text" id="newName" placeholder="商品名稱">
-    <input type="number" id="newStock" placeholder="庫存" value="10">
-    <input type="number" id="newPrice" placeholder="單價" value="50">
-    <button class="action-btn" onclick="addProduct()">新增</button>
+<!-- 新增品項入口 -->
+<div style="text-align:center; margin-top:20px;">
+    <a href="add.html"><button class="action-btn">新增品項</button></a>
 </div>
 
 <h2>單筆待結帳數</h2>
@@ -81,51 +78,8 @@ function renderProducts() {
                 <p>單價：$${products[p].price}</p>
                 <button class="action-btn" onclick="removeFromCart('${p}')">-1</button>
                 <button class="action-btn" onclick="addToCart('${p}')">+1</button>
-                <div style="margin-top:10px;">
-                    <input type="number" id="stock_${p}" value="${products[p].stock}" style="width:60px;">
-                    <input type="number" id="price_${p}" value="${products[p].price}" style="width:60px;">
-                    <button class="action-btn" onclick="updateProduct('${p}')">更新</button>
-                    <button class="action-btn" onclick="deleteProduct('${p}')">刪除</button>
-                </div>
             </div>
         `;
-    }
-}
-
-function addProduct() {
-    let name = document.getElementById("newName").value.trim();
-    let stock = parseInt(document.getElementById("newStock").value);
-    let price = parseInt(document.getElementById("newPrice").value);
-
-    if (!name) { alert("請輸入商品名稱"); return; }
-    if (products[name]) { alert("商品已存在"); return; }
-    if (isNaN(stock) || isNaN(price) || stock < 0 || price < 0) { alert("請輸入有效數字"); return; }
-
-    products[name] = { stock: stock, price: price };
-    localStorage.setItem("products", JSON.stringify(products));
-    renderProducts();
-}
-
-function updateProduct(productName) {
-    let newStock = parseInt(document.getElementById("stock_" + productName).value);
-    let newPrice = parseInt(document.getElementById("price_" + productName).value);
-
-    if (isNaN(newStock) || isNaN(newPrice) || newStock < 0 || newPrice < 0) {
-        alert("請輸入有效數字");
-        return;
-    }
-
-    products[productName].stock = newStock;
-    products[productName].price = newPrice;
-    localStorage.setItem("products", JSON.stringify(products));
-    renderProducts();
-}
-
-function deleteProduct(productName) {
-    if (confirm("確定要刪除 " + productName + " 嗎？")) {
-        delete products[productName];
-        localStorage.setItem("products", JSON.stringify(products));
-        renderProducts();
     }
 }
 
@@ -166,6 +120,56 @@ function checkout() {
 
     localStorage.setItem("products", JSON.stringify(products));
     localStorage.setItem("sales", JSON.stringify(sales));
-    localStorage.set
+    localStorage.setItem("records", JSON.stringify(records));
+
+    currentCart = [];
+    updateCartDisplay();
+    renderProducts();
+    renderRecords();
+    renderTotal();
+}
+
+function renderRecords() {
+    let recordsTable = document.getElementById("records");
+    recordsTable.innerHTML = "<tr><th>時間</th><th>品項明細</th><th>小計</th></tr>";
+    records.forEach(r => {
+        recordsTable.innerHTML += `<tr><td>${r.time}</td><td>${r.detail}</td><td>$${r.subtotal}</td></tr>`;
+    });
+}
+
+function renderTotal() {
+    let dailyTotal = 0;
+    sales.forEach(s => { dailyTotal += s.qty * s.price; });
+    document.getElementById("total").innerText = dailyTotal;
+}
+
+function clearData() {
+    if (confirm("確定要刪除今日所有數據嗎？")) {
+        localStorage.removeItem("products");
+        localStorage.removeItem("sales");
+        localStorage.removeItem("records");
+        products = {
+            "商品A": { stock: 20, price: 50 },
+            "商品B": { stock: 20, price: 30 },
+            "商品C": { stock: 20, price: 80 }
+        };
+        sales = [];
+        records = [];
+        currentCart = [];
+        updateCartDisplay();
+        renderProducts();
+        renderRecords();
+        renderTotal();
+    }
+}
+
+// 初始化畫面
+renderProducts();
+renderRecords();
+renderTotal();
+</script>
+
+</body>
+</html>
 
 
