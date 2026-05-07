@@ -58,11 +58,7 @@
 <button class="action-btn" onclick="clearData()">刪除今日所有數據</button>
 
 <script>
-let products = JSON.parse(localStorage.getItem("products")) || {
-    "商品A": { stock: 20, price: 50 },
-    "商品B": { stock: 20, price: 30 },
-    "商品C": { stock: 20, price: 80 }
-};
+let products = JSON.parse(localStorage.getItem("products")) || {};
 let sales = JSON.parse(localStorage.getItem("sales")) || [];
 let records = JSON.parse(localStorage.getItem("records")) || [];
 let currentCart = [];
@@ -70,6 +66,11 @@ let currentCart = [];
 function renderProducts() {
     let list = document.getElementById("productList");
     list.innerHTML = "";
+    let keys = Object.keys(products);
+    if (keys.length === 0) {
+        list.innerHTML = "<p>目前沒有商品，請先新增。</p>";
+        return;
+    }
     for(let p in products) {
         list.innerHTML += `
             <div class="card">
@@ -148,11 +149,7 @@ function clearData() {
         localStorage.removeItem("products");
         localStorage.removeItem("sales");
         localStorage.removeItem("records");
-        products = {
-            "商品A": { stock: 20, price: 50 },
-            "商品B": { stock: 20, price: 30 },
-            "商品C": { stock: 20, price: 80 }
-        };
+        products = {};
         sales = [];
         records = [];
         currentCart = [];
@@ -171,5 +168,6 @@ renderTotal();
 
 </body>
 </html>
+
 
 
