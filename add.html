@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>新增品項</title>
+    <style>
+        body{ font-family:Arial; max-width:600px; margin:auto; background:#fff8dc; color:#5a4a00; padding:20px; }
+        h1{ text-align:center; color:#c79a00; }
+        .form-group{ margin:15px 0; }
+        label{ display:block; margin-bottom:5px; }
+        input{ width:100%; padding:8px; border:1px solid #f0d97a; border-radius:6px; }
+        .action-btn{ background:#ffd84d; border:none; padding:10px 15px; border-radius:6px; cursor:pointer; font-weight:bold; color:#5a4a00; margin-top:15px; }
+        .action-btn:hover{ background:#ffcc00; }
+        .center{ text-align:center; margin-top:20px; }
+    </style>
+</head>
+<body>
+
+<h1>新增品項</h1>
+
+<div class="form-group">
+    <label for="name">商品名稱</label>
+    <input type="text" id="name" placeholder="輸入商品名稱">
+</div>
+
+<div class="form-group">
+    <label for="price">定價</label>
+    <input type="number" id="price" placeholder="輸入定價">
+</div>
+
+<div class="form-group">
+    <label for="stock">庫存</label>
+    <input type="number" id="stock" placeholder="輸入庫存數量">
+</div>
+
+<div class="center">
+    <button class="action-btn" onclick="saveProduct()">新增商品</button>
+    <a href="index.html"><button class="action-btn">返回商品列表</button></a>
+</div>
+
+<script>
+function saveProduct() {
+    let name = document.getElementById("name").value.trim();
+    let price = parseInt(document.getElementById("price").value);
+    let stock = parseInt(document.getElementById("stock").value);
+
+    if (!name) { alert("請輸入商品名稱"); return; }
+    if (isNaN(price) || price < 0) { alert("請輸入有效定價"); return; }
+    if (isNaN(stock) || stock < 0) { alert("請輸入有效庫存"); return; }
+
+    let products = JSON.parse(localStorage.getItem("products")) || {};
+    if (products[name]) { alert("商品已存在"); return; }
+
+    products[name] = { stock: stock, price: price };
+    localStorage.setItem("products", JSON.stringify(products));
+
+    alert("商品已新增！");
+    window.location.href = "try.html"; // 回到主頁
+}
+</script>
+
+</body>
+</html>
