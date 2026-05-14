@@ -217,9 +217,9 @@
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
         <h2>新增品項</h2>
-        <label>商品名稱</label><input type="text" id="newName">
-        <label>單價 ($)</label><input type="number" id="newPrice" min="0">
-        <label>庫存數量</label><input type="number" id="newStock" min="0">
+        <label>商品名稱</label><input type="text" id="newName" placeholder="例：本子">
+        <label>單價 ($)</label><input type="number" id="newPrice" placeholder="0" min="0">
+        <label>庫存數量</label><input type="number" id="newStock" placeholder="0" min="0">
         <div class="modal-btns">
             <button class="modal-btn" onclick="closeModal()">取消</button>
             <button class="modal-btn confirm" onclick="addProduct()">新增</button>
@@ -341,5 +341,3 @@ renderProducts();renderRecords();renderTotal();updateCartDisplay();
 </script>
 </body>
 </html>
-
-
