@@ -2,6 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>庫存系統</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <style>
@@ -167,6 +168,53 @@
         .modal-btn.confirm { background:var(--base); color:var(--tint1); border-color:var(--base); font-weight:700; }
         .modal-btn.confirm:hover { background:var(--base-dk); }
 
+
+        /* ── MOBILE TAB BAR ── */
+        .tab-bar {
+            display: none;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: var(--base);
+            z-index: 50;
+            box-shadow: 0 -2px 16px rgba(0,0,0,0.18);
+        }
+        .tab-bar-inner { display: flex; height: 60px; }
+        .tab-btn {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 3px; background: none; border: none; cursor: pointer;
+            color: rgba(255,255,255,0.5);
+            font-family: 'Noto Sans TC', sans-serif; font-size: 0.62rem; letter-spacing: 0.03em;
+            transition: color 0.15s, background 0.15s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .tab-btn .tab-icon { font-size: 1.25rem; line-height: 1; }
+        .tab-btn.active { color: var(--tint1); background: rgba(255,255,255,0.1); }
+        .mobile-section { display: none; }
+
+        @media (max-width: 640px) {
+            body { padding-bottom: 60px; }
+            header { padding: 11px 16px; }
+            header h1 { font-size: 1.15rem; }
+            .daily-total { font-size: 0.74rem; }
+            .daily-total span { font-size: 1rem; }
+            .main-grid { display: none; }
+            .tab-bar { display: block; }
+            .mobile-section { display: block; }
+            .mobile-section.hidden { display: none; }
+            .m-panel { padding: 16px; min-height: calc(100vh - 120px); }
+            .product-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
+            .product-card { min-height: 120px; border-radius: 14px; padding: 13px 8px 10px; }
+            .product-card h3 { font-size: 0.88rem; }
+            .qty-btn { width: 34px; height: 34px; font-size: 1.1rem; }
+            .cart-list li { padding: 10px 13px; font-size: 0.9rem; }
+            .checkout-btn { padding: 15px; font-size: 1.15rem; }
+            .subtotal-amount { font-size: 1.6rem !important; }
+            .record-item { padding: 12px 14px; font-size: 0.85rem; }
+            .notes-textarea { height: 200px; min-height: 200px; font-size: 0.9rem; }
+            .modal { width: calc(100vw - 32px); padding: 24px 20px; }
+            .modal input { font-size: 1rem; padding: 12px 14px; }
+            .modal-btn { padding: 13px; font-size: 0.95rem; }
+        }
+
         /* ── TOOLTIP on color btn ── */
         .color-wrap { position:relative; display:flex; align-items:center; }
         .color-label { position:absolute; bottom:-22px; left:50%; transform:translateX(-50%); font-size:0.62rem; color:rgba(255,255,255,0.55); white-space:nowrap; pointer-events:none; opacity:0; transition:opacity 0.2s; }
@@ -217,9 +265,9 @@
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
         <h2>新增品項</h2>
-        <label>商品名稱</label><input type="text" id="newName" placeholder="例：本子">
-        <label>單價 ($)</label><input type="number" id="newPrice" placeholder="0" min="0">
-        <label>庫存數量</label><input type="number" id="newStock" placeholder="0" min="0">
+        <label>商品名稱</label><input type="text" id="newName" placeholder="例：手工餅乾">
+        <label>單價 ($)</label><input type="number" id="newPrice" placeholder="50" min="0">
+        <label>庫存數量</label><input type="number" id="newStock" placeholder="20" min="0">
         <div class="modal-btns">
             <button class="modal-btn" onclick="closeModal()">取消</button>
             <button class="modal-btn confirm" onclick="addProduct()">新增</button>
@@ -292,9 +340,20 @@ notesArea.value=localStorage.getItem("notes")||"";
 function saveNotes(){localStorage.setItem("notes",notesArea.value);}
 
 function renderProducts(){
-    const list=document.getElementById("productList");list.innerHTML="";
-    for(let p in products){list.innerHTML+=`<div class="product-card"><button class="delete-card-btn" onclick="deleteProduct('${p}')">✕</button><h3>${p}</h3><div class="price">$${products[p].price}</div><div class="stock">庫存 ${products[p].stock}</div><div class="card-btns"><button class="qty-btn" onclick="removeFromCart('${p}')">−</button><button class="qty-btn" onclick="addToCart('${p}')">＋</button></div></div>`;}
-    list.innerHTML+=`<div class="product-card add-card" onclick="openModal()"><span class="plus-icon">＋</span><span class="add-label">新增品項</span></div>`;
+    // 桌面
+    const list=document.getElementById("productList");
+    if(list){
+        list.innerHTML="";
+        for(let p in products){list.innerHTML+=`<div class="product-card"><button class="delete-card-btn" onclick="deleteProduct('${p}')">✕</button><h3>${p}</h3><div class="price">$${products[p].price}</div><div class="stock">庫存 ${products[p].stock}</div><div class="card-btns"><button class="qty-btn" onclick="removeFromCart('${p}')">−</button><button class="qty-btn" onclick="addToCart('${p}')">＋</button></div></div>`;}
+        list.innerHTML+=`<div class="product-card add-card" onclick="openModal()"><span class="plus-icon">＋</span><span class="add-label">新增品項</span></div>`;
+    }
+    // 手機
+    const mlist=document.getElementById("m-productList");
+    if(mlist){
+        mlist.innerHTML="";
+        for(let p in products){mlist.innerHTML+=`<div class="product-card"><button class="delete-card-btn" onclick="deleteProduct('${p}')">✕</button><h3>${p}</h3><div class="price">$${products[p].price}</div><div class="stock">庫存 ${products[p].stock}</div><div class="card-btns"><button class="qty-btn" onclick="mRemoveFromCart('${p}')">−</button><button class="qty-btn" onclick="mAddToCart('${p}')">＋</button></div></div>`;}
+        mlist.innerHTML+=`<div class="product-card add-card" onclick="openModal()"><span class="plus-icon">＋</span><span class="add-label">新增品項</span></div>`;
+    }
 }
 function deleteProduct(p){if(confirm("確定要刪除「"+p+"」嗎？")){delete products[p];localStorage.setItem("products",JSON.stringify(products));renderProducts();}}
 function addToCart(p){if(products[p].stock<=0){alert("庫存不足");return;}const idx=currentCart.findIndex(i=>i.product===p);if(idx!==-1)currentCart[idx].qty++;else currentCart.push({product:p,qty:1,price:products[p].price});updateCartDisplay();}
@@ -338,6 +397,147 @@ function addProduct(){
     products[name]={price,stock};localStorage.setItem("products",JSON.stringify(products));closeModal();renderProducts();
 }
 renderProducts();renderRecords();renderTotal();updateCartDisplay();
+
+/* ══════════════════════════════════════
+   MOBILE TAB SYSTEM
+══════════════════════════════════════ */
+const TABS = ['products','checkout','records','notes'];
+
+function switchTab(name) {
+    TABS.forEach(t => {
+        const sec = document.getElementById('m-' + t);
+        const btn = document.getElementById('tab-' + t);
+        if (sec) sec.classList.toggle('hidden', t !== name);
+        if (btn) btn.classList.toggle('active', t === name);
+    });
+    if (name === 'checkout') mUpdateCartDisplay();
+    if (name === 'records')  mRenderRecords();
+    if (name === 'notes') {
+        const mn = document.getElementById('m-notesArea');
+        if (mn) mn.value = localStorage.getItem('notes') || '';
+    }
+}
+
+// mRenderProducts merged into renderProducts()
+
+function mAddToCart(p) {
+    if (products[p].stock <= 0) { alert('庫存不足'); return; }
+    const idx = currentCart.findIndex(i => i.product === p);
+    if (idx !== -1) currentCart[idx].qty++;
+    else currentCart.push({ product: p, qty: 1, price: products[p].price });
+    mUpdateCartDisplay();
+}
+
+function mRemoveFromCart(p) {
+    const idx = currentCart.findIndex(i => i.product === p);
+    if (idx !== -1) {
+        currentCart[idx].qty--;
+        if (currentCart[idx].qty <= 0) currentCart.splice(idx, 1);
+        mUpdateCartDisplay();
+    } else { alert('購物車裡沒有此商品'); }
+}
+
+function mUpdateCartDisplay() {
+    const cartUl = document.getElementById('m-cart');
+    const totalEl = document.getElementById('m-cartTotal');
+    const emptyEl = document.getElementById('m-emptyCart');
+    if (!cartUl) return;
+    cartUl.innerHTML = '';
+    let subtotal = 0;
+    currentCart.forEach(item => {
+        subtotal += item.qty * item.price;
+        cartUl.innerHTML += `<li><span>${item.product} × ${item.qty}</span><span>$${item.qty * item.price}</span></li>`;
+    });
+    if (totalEl) totalEl.innerText = '$' + subtotal;
+    if (emptyEl) emptyEl.style.display = currentCart.length === 0 ? 'block' : 'none';
+}
+
+function mCheckout() {
+    if (currentCart.length === 0) return;
+    currentCart.forEach(item => { products[item.product].stock -= item.qty; sales.push(item); });
+    const now = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+    const subtotal = currentCart.reduce((s, i) => s + i.qty * i.price, 0);
+    const detail = currentCart.map(i => `${i.product}×${i.qty}`).join('、');
+    records.push({ time: now, detail, subtotal });
+    localStorage.setItem('products', JSON.stringify(products));
+    localStorage.setItem('sales', JSON.stringify(sales));
+    localStorage.setItem('records', JSON.stringify(records));
+    currentCart = [];
+    mUpdateCartDisplay(); mRenderProducts(); mRenderRecords(); renderTotal();
+    // also refresh desktop
+    renderProducts(); renderRecords();
+}
+
+function mRenderRecords() {
+    const el = document.getElementById('m-records-list');
+    if (!el) return;
+    if (records.length === 0) { el.innerHTML = '<p class="no-records">尚無紀錄</p>'; return; }
+    el.innerHTML = '';
+    [...records].reverse().forEach(r => {
+        el.innerHTML += `<div class="record-item"><div><div class="record-detail">${r.detail}</div><div class="record-time">${r.time}</div></div><div class="record-subtotal">$${r.subtotal}</div></div>`;
+    });
+}
+
+function saveNotesM() {
+    const mn = document.getElementById('m-notesArea');
+    if (mn) {
+        localStorage.setItem('notes', mn.value);
+        const dn = document.getElementById('notesArea');
+        if (dn) dn.value = mn.value;
+    }
+}
+
+// Sync notes desktop → mobile on init
+document.getElementById('m-notesArea') && (document.getElementById('m-notesArea').value = localStorage.getItem('notes') || '');
+
+// Init mobile
+mRenderRecords();
+mUpdateCartDisplay();
+
 </script>
+
+<!-- ══ MOBILE TAB BAR ══ -->
+<nav class="tab-bar">
+    <div class="tab-bar-inner">
+        <button class="tab-btn active" onclick="switchTab('products')" id="tab-products">
+            <span class="tab-icon">🛒</span><span>商品</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('checkout')" id="tab-checkout">
+            <span class="tab-icon">💳</span><span>結算</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('records')" id="tab-records">
+            <span class="tab-icon">📋</span><span>紀錄</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('notes')" id="tab-notes">
+            <span class="tab-icon">📝</span><span>記事</span>
+        </button>
+    </div>
+</nav>
+
+<!-- ══ MOBILE SECTIONS ══ -->
+<div class="mobile-section m-panel" id="m-products" style="background:var(--white)">
+    <div class="panel-title">商品列表</div>
+    <div class="product-grid" id="m-productList"></div>
+</div>
+
+<div class="mobile-section m-panel hidden" id="m-checkout" style="background:var(--tint1)">
+    <div class="panel-title">單筆金額結算</div>
+    <ul class="cart-list" id="m-cart"></ul>
+    <p class="empty-cart" id="m-emptyCart">購物車是空的</p>
+    <div class="subtotal-row"><span>小計</span><span class="subtotal-amount" id="m-cartTotal">$0</span></div>
+    <button class="checkout-btn" onclick="mCheckout()">結帳</button>
+    <button class="clear-btn" onclick="clearData()">刪除今日所有數據</button>
+</div>
+
+<div class="mobile-section m-panel hidden" id="m-records" style="background:var(--tint2)">
+    <div class="panel-title">當日銷售紀錄</div>
+    <div class="record-list" id="m-records-list"><p class="no-records">尚無紀錄</p></div>
+</div>
+
+<div class="mobile-section m-panel hidden" id="m-notes" style="background:var(--shell)">
+    <div class="panel-title">記事本</div>
+    <textarea class="notes-textarea" id="m-notesArea" placeholder="在這裡記下備注…" oninput="saveNotesM()" style="width:100%;height:200px;min-height:200px"></textarea>
+</div>
+
 </body>
 </html>
