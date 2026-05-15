@@ -224,7 +224,10 @@
             .tab-bar { display: block; }
             .mobile-section { display: block; }
             .mobile-section.hidden { display: none; }
-            .m-panel { padding: 16px; min-height: calc(100vh - 120px); }
+            .m-panel { padding: 16px; }
+            #m-products { min-height: calc(100vh - 60px); overflow-y: auto; }
+            #m-records, #m-notes { min-height: calc(100vh - 120px); }
+            .m-checkout-inline { border-top: 1.5px solid rgba(0,0,0,0.07); }
             .product-grid { grid-template-columns: repeat(2,1fr); gap: 10px; }
             .product-card { min-height: 120px; border-radius: 14px; padding: 13px 8px 10px; }
             .product-card h3 { font-size: 0.88rem; }
@@ -425,7 +428,7 @@ renderProducts();renderRecords();renderTotal();updateCartDisplay();
 /* ══════════════════════════════════════
    MOBILE TAB SYSTEM
 ══════════════════════════════════════ */
-const TABS = ['products','checkout','records','notes'];
+const TABS = ['products','records','notes'];
 
 function switchTab(name) {
     TABS.forEach(t => {
@@ -434,7 +437,7 @@ function switchTab(name) {
         if (sec) sec.classList.toggle('hidden', t !== name);
         if (btn) btn.classList.toggle('active', t === name);
     });
-    if (name === 'checkout') mUpdateCartDisplay();
+    if (name === 'products') mUpdateCartDisplay();
     if (name === 'records')  mRenderRecords();
     if (name === 'notes') {
         const mn = document.getElementById('m-notesArea');
@@ -524,10 +527,7 @@ mUpdateCartDisplay();
 <nav class="tab-bar">
     <div class="tab-bar-inner">
         <button class="tab-btn active" onclick="switchTab('products')" id="tab-products">
-            <span class="tab-icon">🛒</span><span>商品</span>
-        </button>
-        <button class="tab-btn" onclick="switchTab('checkout')" id="tab-checkout">
-            <span class="tab-icon">💳</span><span>結算</span>
+            <span class="tab-icon">🛒</span><span>商品 & 結算</span>
         </button>
         <button class="tab-btn" onclick="switchTab('records')" id="tab-records">
             <span class="tab-icon">📋</span><span>紀錄</span>
@@ -539,23 +539,26 @@ mUpdateCartDisplay();
 </nav>
 
 <!-- ══ MOBILE SECTIONS ══ -->
-<div class="mobile-section m-panel" id="m-products" style="background:var(--white)">
-    <div class="m-products-header">
-        <div class="panel-title">商品列表</div>
-        <button class="m-add-btn" onclick="openModal()">
-            <span class="m-add-icon">＋</span>新增品項
-        </button>
+<div class="mobile-section" id="m-products">
+    <!-- 商品列表 -->
+    <div class="m-panel" style="background:var(--white); padding-bottom:12px;">
+        <div class="m-products-header">
+            <div class="panel-title">商品列表</div>
+            <button class="m-add-btn" onclick="openModal()">
+                <span class="m-add-icon">＋</span>新增品項
+            </button>
+        </div>
+        <div class="product-grid" id="m-productList"></div>
     </div>
-    <div class="product-grid" id="m-productList"></div>
-</div>
-
-<div class="mobile-section m-panel hidden" id="m-checkout" style="background:var(--tint1)">
-    <div class="panel-title">單筆金額結算</div>
-    <ul class="cart-list" id="m-cart"></ul>
-    <p class="empty-cart" id="m-emptyCart">購物車是空的</p>
-    <div class="subtotal-row"><span>小計</span><span class="subtotal-amount" id="m-cartTotal">$0</span></div>
-    <button class="checkout-btn" onclick="mCheckout()">結帳</button>
-    <button class="clear-btn" onclick="clearData()">刪除今日所有數據</button>
+    <!-- 結算 -->
+    <div class="m-panel m-checkout-inline" style="background:var(--tint1);">
+        <div class="panel-title">單筆金額結算</div>
+        <ul class="cart-list" id="m-cart"></ul>
+        <p class="empty-cart" id="m-emptyCart">購物車是空的</p>
+        <div class="subtotal-row"><span>小計</span><span class="subtotal-amount" id="m-cartTotal">$0</span></div>
+        <button class="checkout-btn" onclick="mCheckout()">結帳</button>
+        <button class="clear-btn" onclick="clearData()">刪除今日所有數據</button>
+    </div>
 </div>
 
 <div class="mobile-section m-panel hidden" id="m-records" style="background:var(--tint2)">
