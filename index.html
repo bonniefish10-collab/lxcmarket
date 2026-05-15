@@ -169,6 +169,30 @@
         .modal-btn.confirm:hover { background:var(--base-dk); }
 
 
+
+        /* ── MOBILE ADD BTN (右上角) ── */
+        .m-products-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .m-products-header .panel-title { margin-bottom: 0; }
+        .m-add-btn {
+            display: flex; align-items: center; gap: 5px;
+            background: var(--base);
+            color: var(--tint1);
+            border: none; border-radius: 50px;
+            padding: 7px 14px;
+            font-family: 'Noto Sans TC', sans-serif;
+            font-size: 0.8rem; font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            transition: background 0.15s, transform 0.12s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .m-add-btn:active { transform: scale(0.95); }
+        .m-add-btn .m-add-icon { font-size: 1rem; line-height: 1; }
         /* ── MOBILE TAB BAR ── */
         .tab-bar {
             display: none;
@@ -352,7 +376,7 @@ function renderProducts(){
     if(mlist){
         mlist.innerHTML="";
         for(let p in products){mlist.innerHTML+=`<div class="product-card"><button class="delete-card-btn" onclick="deleteProduct('${p}')">✕</button><h3>${p}</h3><div class="price">$${products[p].price}</div><div class="stock">庫存 ${products[p].stock}</div><div class="card-btns"><button class="qty-btn" onclick="mRemoveFromCart('${p}')">−</button><button class="qty-btn" onclick="mAddToCart('${p}')">＋</button></div></div>`;}
-        mlist.innerHTML+=`<div class="product-card add-card" onclick="openModal()"><span class="plus-icon">＋</span><span class="add-label">新增品項</span></div>`;
+        // 手機版不需要 add-card，改用右上角按鈕
     }
 }
 function deleteProduct(p){if(confirm("確定要刪除「"+p+"」嗎？")){delete products[p];localStorage.setItem("products",JSON.stringify(products));renderProducts();}}
@@ -516,7 +540,12 @@ mUpdateCartDisplay();
 
 <!-- ══ MOBILE SECTIONS ══ -->
 <div class="mobile-section m-panel" id="m-products" style="background:var(--white)">
-    <div class="panel-title">商品列表</div>
+    <div class="m-products-header">
+        <div class="panel-title">商品列表</div>
+        <button class="m-add-btn" onclick="openModal()">
+            <span class="m-add-icon">＋</span>新增品項
+        </button>
+    </div>
     <div class="product-grid" id="m-productList"></div>
 </div>
 
